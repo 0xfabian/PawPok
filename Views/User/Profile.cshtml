@@ -54,9 +54,11 @@
             {
                 <div>
                     <a href="@Url.Action("Index", "Video", new {videoId = video.Id})">
-                        <video muted loop class="video-item" width="200" height="360" style="border-radius: 10px; border: 1px solid #303030">
-                            <source src="@Url.Content(video.VideoURL)" type="video/mp4">
-                        </video>
+                        <div style="width: 200px; height: 360px; border-radius: 10px; border: 1px solid #303030; overflow: hidden; display: flex; justify-content: center">
+                            <video muted loop class="video-item" style="height: 100%">
+                                <source src="@Url.Content(video.VideoURL)" type="video/mp4">
+                            </video>
+                        </div>
                     </a>
                     <div style="font-weight: 600">@video.Description</div>
                 </div>
