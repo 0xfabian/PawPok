@@ -1,0 +1,197 @@
+﻿@using PawPok.Helper
+@model PawPok.Models.Comment
+@{
+    ViewData["Title"] = "Video";
+    Layout = "~/Views/Shared/_EmptyLayout.cshtml";
+}
+
+<div style="width: 100vw; height: 100vh; display: flex; flex-direction: row">
+    <video style="flex-grow: 1" controls loop>
+        <source src="@Url.Content(ViewBag.Video.VideoURL)" type="video/mp4">
+    </video>
+    <div style="position: absolute; height: 100vh; width: calc(100vw - 500px); background: #202020c0; backdrop-filter: blur(20px); z-index: -1">
+    </div>
+    <div style="position: absolute; width: calc(100vw - 500px); height: 100vh; overflow: hidden; pointer-events: none; z-index: -2">
+        <video style="position: relative; width: 100%; top: 50%; transform: translateY(-50%)">
+            <source src="@Url.Content(ViewBag.Video.VideoURL)" type="video/mp4">
+        </video>
+    </div>
+    <a href="@Url.Action("Index", "Home")" class="follow-btn exit-btn" style="position: absolute; top: 20px; left: 20px;">🞨</a>
+    <div style="width: 500px; display: flex; flex-direction: column; border-left: 1px solid #303030">
+        <div style="width: 100%; border-bottom: 1px solid #303030; background: #101010">
+
+            <div style="display: flex; flex-direction: column; padding: 20px; gap: 20px">
+
+                <div style="display: flex; flex-direction: row; gap: 10px">
+                    <div>
+                        <a href="@Url.Action("Profile", "User", new {username = ViewBag.Video.User.Username})">
+                            <div class="pfp" style="background-image: url('@Url.Content(ViewBag.Video.User.ProfilePictureURL)'); width: 50px; height: 50px"></div>
+                        </a>
+                    </div>
+                    <div style="display: flex; flex-direction: column; flex-grow: 1">
+                        <div style="display: flex; flex-direction: row; align-items: baseline">
+                            <a href="@Url.Action("Profile", "User", new {username = ViewBag.Video.User.Username})" style="font-size: 20px; font-weight: bold">@ViewBag.Video.User.Username</a>
+                            <div style="color: #707070; margin-left: 10px">@DateFormatter.From(ViewBag.Video.UploadDate)</div>
+                        </div>
+                        <div>@ViewBag.Video.User.Name</div>
+                    </div>
+                    <div>
+                        @if (User!.Identity!.Name == ViewBag.Video.User.Username)
+                        {
+                            <a href="@Url.Action("Remove", new {videoId = ViewBag.Video.Id})" class="follow-btn danger">Remove video</a>
+                        }
+                        else
+                        {
+                            <a id="follow-button" href="@Url.Action("Follow", "User", new {userId = ViewBag.Video.User.Id})" class="follow-btn" style="display: @(ViewBag.isFollowed ? "none" : "block")">Follow</a>
+                            <a id="unfollow-button" href="@Url.Action("Unfollow", "User", new {userId = ViewBag.Video.User.Id})" class="unfollow-btn" style="display: @(ViewBag.isFollowed ? "block" : "none")">Followed</a>
+                        }
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(ViewBag.Video.Description))
+                {
+                    <pre>@ViewBag.Video.Description</pre>
+                }
+
+            </div>
+        </div>
+        <div style="width: 100%; border-bottom: 1px solid #303030; display: flex; flex-direction: row; justify-content: space-around; padding: 10px 20px; background: #101010">
+
+            <div style="display: flex; flex-direction: row">
+                <a href="@Url.Action((ViewBag.isLiked ? "Unlike" : "Like"), "User", new {videoId = ViewBag.Video.Id})" class="circ-btn like-btn" @(ViewBag.isLiked ? "liked" : "") style="font-size: 38px">♥</a>
+                <div style="width: 50px; font-weight: 500; margin-left: 10px; display: flex; align-items: center">@ViewBag.Video.Likes.Count</div>
+            </div>
+            <div style="display: flex; flex-direction: row">
+                <a class="circ-btn" style="font-size: 24px; font-weight: bold">
+                    ☰
+                </a>
+                <div style="width: 50px; font-weight: 500; margin-left: 10px; display: flex; align-items: center">@ViewBag.Video.Comments.Count</div>
+            </div>
+            <div style="display: flex; flex-direction: row">
+                <a href="@Url.Action("Share", "User", new {videoId = ViewBag.Video.Id})" class="circ-btn" style="font-size: 30px" onclick="share(this)">
+                    ↝
+                </a>
+                <div style="width: 50px; font-weight: 500; margin-left: 10px; display: flex; align-items: center">@ViewBag.Video.shares</div>
+            </div>
+
+        </div>
+        <div style="flex-grow: 1; width: 100%; overflow-y: auto; position: relative" onscroll="shift_fade(this)">
+            <div style="display: grid; gap: 10px; margin: 10px 10px; padding-bottom: 50px">
+                @foreach (var comm in ViewBag.Video.Comments)
+                {
+                    @if (comm.Content != null)
+                    {
+                        <div style="display: flex; flex-direction: row; background: #101010; padding: 10px; border-radius: 10px; border: 1px solid #202020; gap: 10px">
+                            <div>
+                                <a href="@Url.Action("Profile", "User", new {username = comm.User.Username})">
+                                    <div class="pfp" style="background-image: url('@Url.Content(comm.User.ProfilePictureURL)'); width: 50px; height: 50px"></div>
+                                </a>
+                            </div>
+                            <div style="display: flex; flex-direction: column; width: 100%">
+                                <div style="display: flex; flex-direction: row; align-items: baseline">
+                                    <a href="@Url.Action("Profile", "User", new {username = comm.User.Username})" style="font-weight: 600">@comm.User.Username</a>
+                                    <div style="color: #707070; margin-left: 10px">@DateFormatter.From(comm.CreatedDate)</div>
+                                </div>
+                                <pre>@comm.Content</pre>
+                            </div>
+                            @if (User!.Identity!.IsAuthenticated && (comm.User.Username == User!.Identity!.Name || ViewBag.Video.User.Username == User!.Identity!.Name))
+                            {
+                                <a href="@Url.Action("RemoveComment", new {commId = comm.Id})" class="follow-btn remove-btn danger">🞨</a>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+            <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50px; background: linear-gradient(transparent, black)"></div>
+        </div>
+        
+        <div style="width: 100%">
+            <form id="account" asp-controller="User" asp-action="Comment" method="post" style="padding: 15px">
+                <input type="hidden" asp-for="UserId" />
+                <input type="hidden" asp-for="VideoId" />
+
+                @if (User!.Identity!.IsAuthenticated)
+                {
+                    <div style="display: flex; flex-direction: row">
+                        <div class="form-group" style="flex-grow: 1">
+                            <textarea id="comm-area" asp-for="Content" class="form-control" style="max-height: 100px; overflow-y: auto; resize: none" spellcheck="false" rows="1" placeholder="Add comment..."></textarea>
+                        </div>
+                        <div style="display: flex; flex-direction: column">
+                            <button type="submit" class="follow-btn" style="margin-left: 15px; bottom: 0">Post</button>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a href="@Url.Action("Login", "Authentication")" class="follow-btn" style="width: 100%">Log in to comment</a>
+                }
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const textarea = document.getElementById('comm-area');
+
+        textarea.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+
+            if (this.scrollHeight > parseInt(getComputedStyle(this).maxHeight)) {
+                this.style.height = getComputedStyle(this).maxHeight;
+                this.style.overflowY = 'scroll';
+            } else {
+                this.style.overflowY = 'hidden';
+            }
+        });
+    });
+</script>
+
+@if (User!.Identity!.IsAuthenticated && User!.Identity!.Name != ViewBag.Video.User.Username)
+{
+    <script>
+        document.getElementById("follow-button").addEventListener("click", function (event) {
+            this.style.display = "none";
+            this.nextElementSibling.style.display = "block";
+        });
+
+        document.getElementById("unfollow-button").addEventListener("click", function (event) {
+            this.style.display = "none";
+            this.previousElementSibling.style.display = "block";
+        });
+    </script>
+}
+
+@if (User!.Identity!.IsAuthenticated)
+{
+    <script>
+        const button = document.querySelector(".like-btn")
+
+        button.addEventListener("click", function (event) {
+            if (button.hasAttribute('liked')) {
+                button.removeAttribute('liked');
+                button.href = button.href.replace('Like', 'Unlike');
+                button.nextElementSibling.innerHTML--;
+            }
+            else {
+                button.setAttribute('liked', '');
+                button.href = button.href.replace('Unlike', 'Like');
+                button.nextElementSibling.innerHTML++;
+            }
+        });
+    </script>
+}
+
+<script>
+    function share(elem) {
+        elem.setAttribute('shared', '');
+        navigator.clipboard.writeText(window.location.href);
+        elem.nextElementSibling.innerHTML++;
+    }
+
+    function shift_fade(elem) {
+        console.log(elem.scrollTop);
+        elem.children[1].style.bottom = -elem.scrollTop + 'px';
+    }
+</script>

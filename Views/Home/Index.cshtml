@@ -1,0 +1,128 @@
+﻿@using PawPok.Helper
+@model List<Video>
+
+@{
+    ViewData["Title"] = "For You";
+}
+
+<div style="display: flex; flex-direction: column; gap: 60px; justify-content: center; margin-bottom: 60px; align-items: center">
+    @for (int i = 0; i < Model.Count(); i++)
+    {
+        <div id="@i" class="fy-video" style="display: none; gap: 20px">
+            <div style="display: flex; flex-direction: column; gap: 20px">
+
+                <div style="width: 100%; display: flex; flex-direction: row; gap: 10px">
+                    <a href="@Url.Action("Profile", "User", new { username = Model[i].User?.Username })">
+                        <div class="pfp" style="background-image: url('@Url.Content(Model[i].User?.ProfilePictureURL)'); width: 60px; height: 60px"></div>
+                    </a>
+                    <div style="flex-grow: 1; display: flex; flex-direction: column; text-align: left">
+                        <div style="display: flex; flex-direction: row; align-items: baseline">
+                            <a style="font-size: 20px; font-weight: bold" href="@Url.Action("Profile", "User", new { username = Model[i].User?.Username })">@Model[i].User?.Username</a>
+                            <div style="color: #707070; margin-left: 10px">@DateFormatter.From(Model[i].UploadDate)</div>
+                        </div>
+                        <pre>@Model[i].User?.Name</pre>
+                    </div>
+                    <div>
+                        <a href="@Url.Action("Follow", "User", new {userId = Model[i].UserId})" class="follow-btn" style="display: @(ViewBag.isFollowed[i] ? "none" : "block")">Follow</a>
+                        <a href="@Url.Action("Unfollow", "User", new {userId = Model[i].UserId})" class="unfollow-btn" style="display: @(ViewBag.isFollowed[i] ? "block" : "none")">Followed</a>
+                    </div>
+                </div>
+
+                @if(!string.IsNullOrEmpty(Model[i].Description))
+                {
+                    <pre>@Model[i].Description</pre>
+                }
+
+            </div>
+            <div style="display: flex; flex-direction: row">
+                <video style="height: 100%; border-radius: 12px" controls loop onloadeddata="calc_video_dims('@i')">
+                    <source src="@Url.Content(Model[i].VideoURL)" type="video/mp4">
+                </video>
+                <div style="display: flex; flex-direction: column-reverse; margin-left: 20px; overflow: hidden; gap: 30px">
+                    <div style="height: 80px">
+                        <a href="@Url.Action("Share", "User", new {videoId = Model[i].Id})" class="circ-btn" style="font-size: 30px" onclick="share(this)">
+                            ↝
+                        </a>
+                        <div style="text-align: center; font-weight: 500; margin-top: 5px">@Model[i].shares</div>
+                    </div>
+                    <div style="height: 80px">
+                        <a href="@Url.Action("Index", "Video", new {videoId = Model[i].Id})" class="circ-btn" style="font-size: 24px; font-weight: bold">
+                            ☰
+                        </a>
+                        <div style="text-align: center; font-weight: 500; margin-top: 5px">@Model[i].Comments.Count()</div>
+                    </div>
+                    <div style="height: 80px">
+                        <a href="@Url.Action((ViewBag.isLiked[i] ? "Unlike" : "Like"), "User", new {videoId = Model[i].Id})" class="circ-btn like-btn" @(ViewBag.isLiked[i] ? "liked" : "") style="font-size: 38px">♥</a>
+                        <div style="text-align: center; font-weight: 500; margin-top: 5px">@Model[i].Likes.Count()</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (User!.Identity!.IsAuthenticated)
+{
+    <script>
+        const flw_buttons = document.querySelectorAll(".follow-btn");
+        const uflw_buttons = document.querySelectorAll(".unfollow-btn");
+
+        flw_buttons.forEach(button => {
+            button.addEventListener("click", function (event) {
+                flw_buttons.forEach(btn => {
+                    if (btn.getAttribute('href') === button.getAttribute('href')) {
+                        btn.style.display = "none";
+                        btn.nextElementSibling.style.display = "block";
+                    }
+                });
+            });
+        });
+
+        uflw_buttons.forEach(button => {
+            button.addEventListener("click", function (event) {
+                uflw_buttons.forEach(btn => {
+                    if (btn.getAttribute('href') === button.getAttribute('href')) {
+                        btn.style.display = "none";
+                        btn.previousElementSibling.style.display = "block";
+                    }
+                });
+            });
+        });
+
+        const like_buttons = document.querySelectorAll(".like-btn");
+
+        like_buttons.forEach(button => {
+            button.addEventListener("click", function (event) {
+                if (button.hasAttribute('liked')) {
+                    button.removeAttribute('liked');
+                    button.href = button.href.replace('Like', 'Unlike');
+                    button.nextElementSibling.innerHTML--;
+                }
+                else {
+                    button.setAttribute('liked', '');
+                    button.href = button.href.replace('Unlike', 'Like');
+                    button.nextElementSibling.innerHTML++;
+                }
+            });
+        });
+
+
+    </script>
+}
+
+<script>
+    function calc_video_dims(id) {
+        const video = document.getElementById(id);
+        
+        video.style.display = 'flex';
+        var sz = video.children[0].offsetHeight;
+        video.children[1].style.height = 'calc(100vh - 160px - ' + sz + 'px)';
+    }
+
+    function share(elem) {
+        elem.nextElementSibling.innerHTML++;
+        elem.setAttribute('shared', '');
+        var comm = elem.parentNode.nextElementSibling.children[0];
+        navigator.clipboard.writeText(comm.href);
+    }
+</script>

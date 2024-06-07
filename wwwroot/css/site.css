@@ -1,0 +1,200 @@
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+a {
+    text-decoration: none;
+}
+
+.follow-btn, .follow-btn:hover {
+    min-width: 90px;
+    display: inline-block;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: #202020;
+    padding: 0.375rem 0.75rem;
+    color: #00ffa0;
+    border-radius: 5px;
+    border-style: none;
+    white-space: nowrap;
+}
+
+    .follow-btn:hover {
+        background-color: #00ffa0;
+        color: #202020;
+    }
+
+.danger {
+    color: var(--bs-danger);
+    background: #202020;
+}
+
+.danger:hover {
+    color: #202020;
+    background: var(--bs-danger);
+}
+
+.unfollow-btn, .unfollow-btn:hover {
+    min-width: 90px;
+    display: inline-block;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    padding: 0.375rem 0.75rem;
+    color: #707070;
+    outline: 2px solid #606060;
+    outline-offset: -2px;
+    border-radius: 5px;
+    white-space: nowrap;
+}
+
+    .unfollow-btn:hover {
+        color: #00ffa0;
+        outline: 2px solid #00ffa0;
+    }
+
+.pfp {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+}
+
+.circ-btn, .circ-btn:hover {
+    min-width: 0;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #202020;
+    cursor: pointer;
+    user-select: none;
+    color: #606060;
+}
+
+    .circ-btn:hover {
+        color: #00ffa0;
+    }
+
+.circ-btn[liked] {
+    color: #f55;
+}
+
+    .circ-btn[shared] {
+        color: #5f9dff;
+    }
+
+.exit-btn, .exit-btn:hover {
+    min-width: 0;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+    background: #00000060;
+    color: #eee;
+    padding: 0;
+}
+
+.exit-btn:hover {
+    background: #80808060;
+}
+
+.fy-video {
+    height: calc(100vh - 100px);
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px solid #303030;
+    background: #101010;
+}
+
+.remove-btn, .remove-btn:hover {
+    min-width: 22px;
+    height: 22px;
+    width: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    padding: 0;
+}
+
+body {
+    background: black;
+    color: #eee;
+    font-size: 16px;
+}
+
+a {
+    color: #00ffa0;
+}
+
+    a:hover {
+        color: #02cf82;
+    }
+
+.form-control, .form-control[readonly] {
+    background: #101010;
+    color: #eee;
+    border: 1px solid #303030;
+}
+
+    .form-control:focus {
+        background: #101010;
+        color: #eee;
+        border: 1px solid #00ffa0;
+        box-shadow: none;
+    }
+
+::selection {
+    background: #00ffa040;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: black;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #202020;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-corner {
+    background: black;
+}
+
+pre {
+    font-family: var(--bs-body-font-family);
+    margin: 0;
+    font-size: 16px;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}

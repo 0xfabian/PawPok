@@ -1,0 +1,97 @@
+﻿@model PawPok.Models.Video
+@{
+    ViewData["Title"] = "Upload";
+}
+
+<div class="container">
+    <h1 class="text-center" style="margin-bottom: 40px">Upload video</h1>
+    <div class="row">
+        <div class="mx-auto">
+            <form id="account" asp-controller="User" asp-action="Upload" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: row; justify-content: center">
+                <div style="margin-right: 40px">
+                    <div class="mb-2">Video</div>
+                    <input id="video-status" class="form-control" readonly/>
+                    <button type="button" class="follow-btn" style="margin:auto; margin-top: 20px" onclick="document.getElementById('browse-file').click()">Browse</button>
+                    <input id="browse-file" type="file" name="file" style="display: none" accept=".mp4" onchange="preview_video(event)" />
+
+                    <div class="form-group" style="margin-top: 20px">
+                        <label asp-for="Description" class="control-label mb-2">Description</label>
+                        <textarea id="desc-area" asp-for="Description" class="form-control mb-2" style="height: 200px; width: 400px; resize: none" spellcheck="false" placeholder="Share more about your video here..." oninput="update_desc_length()"></textarea>
+                        <span id="desc-length">0 / 2000</span>
+                    </div>
+
+                    @if (ViewData.ModelState[string.Empty] != null)
+                    {
+                        <div class="error-summary" style="margin-top: 20px">
+                            @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+                            {
+                                <div class="error-item text-danger">
+                                    @error.ErrorMessage
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <a href="@Url.Action("Index")" class="follow-btn" style="margin-top: 20px; margin-right: 10px">Discard</a>
+                    <button type="submit" class="follow-btn" style="margin-top: 20px">Post</button>
+                </div>
+
+                <div class="form-group" style="display: flex; justify-content: center">
+                    <video width="350" style="border-radius: 12px; border: 1px solid #303030" controls>
+                        <source id="video-src" src="@(Url.Content(Model.VideoURL))" type="video/mp4" />
+                    </video>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function update_desc_length() {
+        var desc_area = document.getElementById('desc-area');
+        var desc_length = document.getElementById('desc-length');
+
+        desc_length.innerText = desc_area.value.length + ' / 2000';
+
+        if (desc_area.value.length > 2000)
+            desc_length.style.color = 'var(--bs-danger)';
+        else
+            desc_length.style.color = '#eee';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        update_desc_length();
+    });
+
+    function preview_video(event) {
+        var input = event.target;
+        var filename = input.value.split('\\').pop();
+        var source = document.getElementById('video-src');
+        var video = source.parentElement;
+        var status = document.getElementById('video-status');
+
+        if (!is_valid_extension(filename)) {
+            input.value = '';
+            source.removeAttribute('src');
+            video.load();
+            status.value = '';
+        }
+
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                source.src = e.target.result;
+                video.load();
+                status.value = filename;
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function is_valid_extension(filename) {
+        var extension = filename.split('.').pop().toLowerCase();
+        return extension === 'mp4';
+    }
+</script>

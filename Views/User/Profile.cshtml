@@ -1,0 +1,100 @@
+﻿@model PawPok.Models.User
+@{
+    ViewData["Title"] = Model.Username;
+}
+
+<div style="display: flex; flex-direction: column;">
+    <div style="display: flex; flex-direction: column">
+        <div style="display: flex; flex-direction: row">
+
+            <div class="pfp" style="background-image: url('@Url.Content(Model.ProfilePictureURL)'); margin-right: 20px"></div>
+
+            <div style="display: flex; flex-direction: column">
+                <a href style="font-size: 30px; font-weight: 700">@Model.Username</a>
+                <span>@Model.Name</span>
+                <div>
+                    @if (User!.Identity!.Name == Model.Username)
+                    {
+                        <a href="@Url.Action("Edit")" class="follow-btn mt-2" style="width: 120px">Edit profile</a>
+                    }
+                    else
+                    {
+                        <a id="follow-button" href="@Url.Action("Follow", "User", new {userId = Model.Id})" class="follow-btn mt-2" style="display: @(ViewBag.isFollowed ? "none" : "block")">Follow</a>
+                        <a id="unfollow-button" href="@Url.Action("Unfollow", "User", new {userId = Model.Id})" class="unfollow-btn mt-2" style="display: @(ViewBag.isFollowed ? "block" : "none")">Followed</a>
+                    }
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; flex-direction: row; margin-top: 20px">
+            <div style="margin-right: 20px">
+                <strong>@ViewBag.following</strong>
+                <span>Following</span>
+            </div>
+            <div style="margin-right: 20px">
+                <strong>@ViewBag.followers</strong>
+                <span>Followers</span>
+            </div>
+            <div>
+                <strong>@ViewBag.likes</strong>
+                <span>Likes</span>
+            </div>
+        </div>
+        <div style="margin-top: 20px">
+            @if (string.IsNullOrWhiteSpace(Model.Bio))
+            {
+                <pre>No bio yet.</pre>
+            }
+            else
+            {
+                <pre>@Model.Bio</pre>
+            }
+        </div>
+        <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px 16px">
+            @foreach (var video in Model.Videos)
+            {
+                <div>
+                    <a href="@Url.Action("Index", "Video", new {videoId = video.Id})">
+                        <video muted loop class="video-item" width="200" height="360" style="border-radius: 10px; border: 1px solid #303030">
+                            <source src="@Url.Content(video.VideoURL)" type="video/mp4">
+                        </video>
+                    </a>
+                    <div style="font-weight: 600">@video.Description</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@if (User!.Identity!.IsAuthenticated && User!.Identity!.Name != Model.Username)
+{
+    <script>
+        document.getElementById("follow-button").addEventListener("click", function (event) 
+        {
+            this.style.display = "none";
+            this.nextElementSibling.style.display = "block";
+        });
+
+        document.getElementById("unfollow-button").addEventListener("click", function (event) 
+        {
+            this.style.display = "none";
+            this.previousElementSibling.style.display = "block";
+        });
+    </script>
+}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const videos = document.querySelectorAll('.video-item');
+
+        videos.forEach(video => {
+            video.addEventListener('mouseover', function () {
+                video.play();
+            });
+
+            video.addEventListener('mouseout', function () {
+                video.pause();
+                video.currentTime = 0;
+            });
+        });
+    });
+</script>

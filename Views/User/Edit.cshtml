@@ -1,0 +1,104 @@
+﻿@model PawPok.Models.User
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="container">
+    <h1 class="text-center" style="margin-bottom: 40px">Edit profile</h1>
+    <div class="row">
+        <div class="mx-auto" style="width: 400px">
+            <form id="account" asp-controller="User" asp-action="Edit" method="post" enctype="multipart/form-data">
+
+                <div style="display: flex; flex-direction: row; align-items: center">
+                    <input type="hidden" asp-for="ProfilePictureURL" />
+                    <div id="pfp" class="pfp" style="background-image: url('@(Url.Content(Model.ProfilePictureURL))')"></div>
+
+                    <button type="button" class="follow-btn" style="margin-left: 20px" onclick="document.getElementById('browse-file').click()">Change</button>
+                    <input id="browse-file" type="file" name="file" style="display: none" accept=".png, .jpg, .jpeg" onchange="change_pfp(event)" />
+
+                </div>
+
+                <div class="form-group" style="margin-top: 20px">
+                    <label asp-for="Username" class="control-label mb-2">Username</label>
+                    <input asp-for="Username" class="form-control" value="@Model.Username" spellcheck="false"/>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px">
+                    <label asp-for="Name" class="control-label mb-2">Name</label>
+                    <input asp-for="Name" class="form-control" value="@Model.Name" spellcheck="false" />
+                </div>
+
+                <div class="form-group" style="margin-top: 20px">
+                    <label asp-for="Bio" class="control-label mb-2">Bio</label>
+                    <textarea id="bio-area" asp-for="Bio" class="form-control mb-2" style="height: 120px; resize: none" spellcheck="false" placeholder="Bio" oninput="update_bio_length()" />@Model.Bio</textarea>
+                    <span id="bio-length">0 / 80</span>
+                </div>
+
+                @if (ViewData.ModelState[string.Empty] != null)
+                {
+                    <div class="error-summary" style="margin-top: 20px">
+                        @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+                        {
+                            <div class="error-item text-danger">
+                                @error.ErrorMessage
+                            </div>
+                        }
+                    </div>
+                }
+
+                <div style="margin-top: 20px">
+                    <a href="@Url.Action("Index")" class="follow-btn" style="margin-right: 10px">Cancel</a>
+                    <button type="submit" class="follow-btn">Save</button>
+                </div>
+
+                <div style="margin-top: 60px">
+                    <a href="@Url.Action("Remove")" class="follow-btn danger">Delete account</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function update_bio_length() {
+        var bio_area = document.getElementById('bio-area');
+        var bio_length = document.getElementById('bio-length');
+
+        bio_length.innerText = bio_area.value.length + ' / 80';
+
+        if (bio_area.value.length > 80)
+            bio_length.style.color = 'var(--bs-danger)';
+        else
+            bio_length.style.color = '#eee';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        update_bio_length();
+    });
+
+    function change_pfp(event) {
+        var input = event.target;
+        var filename = input.value.split('\\').pop();
+
+        if (!is_valid_extension(filename)) {
+            input.value = '';
+            document.getElementById('pfp').style.backgroundImage = "url('@(Url.Content(Model.ProfilePictureURL))')"
+        }
+
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.getElementById('pfp').style.backgroundImage = 'url(' + e.target.result + ')';
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function is_valid_extension(filename) {
+        var valid = ['png', 'jpg', 'jpeg'];
+        var extension = filename.split('.').pop().toLowerCase();
+        return valid.includes(extension);
+    }
+</script>

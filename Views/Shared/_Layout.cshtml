@@ -1,0 +1,73 @@
+﻿@{
+    string currentController = ViewContext.RouteData.Values["controller"].ToString();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PawPok</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PawPok.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header style="position: fixed; width: 100%; z-index: 100">
+        <nav class="navbar navbar-light box-shadow mb-3" style="flex-wrap: nowrap; background: #101010c0; backdrop-filter: blur(20px); border-bottom: 1px solid #303030">
+            <div class="container-fluid" style="justify-content: space-around">
+                <a id="left" style="text-align: left; font-weight: bold; font-size: 24px" asp-area="" asp-controller="Home" asp-action="Index">PawPok</a>
+
+                <form onsubmit="redirectToSearch(event)">
+                    <input id="searchInput" class="form-control" style="width: 400px; border-radius: 100px" spellcheck="false" placeholder="Search" value="@Context.Request.Query["search"]" autocomplete="off"/>
+                </form>
+                
+                <div id="right" style="display: flex; flex-direction: row; align-items: center">
+                    @if (currentController != "Authentication")
+                    {
+                        @if (User!.Identity!.IsAuthenticated)
+                        {
+                            <a href="@Url.Action("Index", "User")">
+                                <div class="pfp" style="background-image: url('@Url.Content(User!.FindFirst("pfp")?.Value)'); width: 40px; height: 40px; margin-left: 10px; margin-right: 10px"></div>
+                            </a>
+                            <a href="@Url.Action("Upload", "User")" class="follow-btn" style="margin-right: 10px">Upload</a>
+                            <a href="@Url.Action("Logout", "Authentication")" class="follow-btn">Log out</a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Login", "Authentication")" class="follow-btn">Log in</a>
+                        }
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container" style="padding-top: 73px">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer text-muted" style="background: #101010; border-top: 1px solid #303030">
+        <div class="container">
+            &copy; 2024 - PawPok - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        var left = document.getElementById('left');
+        var right = document.getElementById('right');
+        left.style.width = right.offsetWidth + 'px';
+
+        function redirectToSearch(event) {
+            event.preventDefault();
+            var searchTerm = document.getElementById("searchInput").value;
+            var searchUrl = "/Home/Index?search=" + encodeURIComponent(searchTerm);
+            window.location.href = searchUrl;
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
